@@ -329,7 +329,8 @@ class WorldCup(object):
 
 if __name__ == "__main__":
     while True:
-        wc = WorldCup(["Comment %d" % i for i in range(34)])
+        teams = ["Comment %d" % i for i in range(34)]
+        wc = WorldCup(teams)
         valid = wc.play(True)
         if not valid:
             print("\n\n\n\nGame yielded an inexistent player as finalist. Retrying...")
