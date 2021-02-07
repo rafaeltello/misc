@@ -21,13 +21,13 @@ class WorldCup(object):
         self.gsday = 0
     
     def printGroups(self):
-        gs = self.groups.keys()
+        gs = list(self.groups.keys())
         gs.sort()
         for g in gs:
             print("%s: %s" % (g, self.groups[g]))
 
-    def printGroupRoster(self):
-        for i in range(1,7):
+    def printGroupRoster(self, lastDay = False):
+        for i in range(1,7) if not lastDay else range(self.gsday, self.gsday+1):
             print("Day %d games:" % i)
             for (g, t1, t2), res in self.gsroster[i].items():
                 print(gameString(g, t1, t2, res))
@@ -43,7 +43,7 @@ class WorldCup(object):
         
         # Assign each team to a random group
         # Sorry, no continents here.
-        gs = groups.keys()
+        gs = list(groups.keys())
         for t in self.teams:
             g = random.choice(gs)
             groups[g][t] = 0
@@ -82,26 +82,40 @@ class WorldCup(object):
         # Otherwise, it will play the entire group stage, and return True.
         while self.gsday < 6:
             self.gsday += 1
-            day = self.gsroster[d]
-            for (g, t1, t2), res in self.gsroster[d].items():
+            day = self.gsroster[self.gsday]
+            for (g, t1, t2), res in day.items():
                 if res != self.notplayed:
                     raise Exception("Match %s already played!" % gameString(g,t1,t2,res))
                 goals = random.randint(0,10)
                 gt1, gt2 = 0, 0 
-                for i in range(goals):
+                for _ in range(goals):
                     if random.randrange(256) % 2 == 0:
                         gt2 += 1
                     else:
                         gt1 += 1
-                
-
-
+                # Update the roster
+                day[(g,t1,t2)] = (gt1, gt2)
+                if t1 > t2:
+                    # t1 won. Yay!
+                    self.groups[g][t1] += 3
+                elif t2 > t1:
+                    # t2 won. Yay!
+                    self.groups[g][t2] += 3
+                else:
+                    # Tie, 1 point each
+                    self.groups[g][t1] += 1
+                    self.groups[g][t2] += 1
+            if one_day:
+                return False
+        return True
 
 
 if __name__ == "__main__":
     sol = WorldCup(["Team %d" % i for i in range(31)])
-    print("Initial groups:")
-    sol.printGroups()
-    print("Initial roster:")
-    sol.printGroupRoster()
-    sol.playGroupStageGame()
+    # print("Initial groups:")
+    # sol.printGroups()
+    # print("Initial roster:")
+    # sol.printGroupRoster()
+    print("Group Stage Game")
+    while not sol.playGroupStageGame(True):
+        sol.printGroupRoster(True)
