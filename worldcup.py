@@ -4,8 +4,15 @@ import itertools
 import math
 import copy
 
-def gameString(g, t1, t2, res):
+NOT_PLAYED = ""
+THIRD_PLACE = "third"
+FINAL = "final"
+
+def gGameString(g, t1, t2, res):
     return "[%s] - %s v. %s : %s" % (g, t1, t2, res)
+
+def kGameString(d, t1, t2, res):
+    return "[Day %s] - %s v. %s : %s" % (d, t1, t2, res)
 
 class WorldCup(object):
     def __init__(self, teams):
@@ -16,14 +23,14 @@ class WorldCup(object):
         # We create token teams to fill up to one of these powers.
         # If this team wins, we repeat the entire World Cup.
         self.pc = len(teams)
-        self.notplayed = ""
+        
         self.groups = self.createGroups()
         self.gs = sorted(self.groups.keys())
         self.gw = {}
         self.gsroster = self.createGroupStageRoster(self.groups)
         self.knroster = None
-        self.gsday = 0
-        self
+        self.gday = 0
+        self.cup = {}
     
     def packTeams(self, teams, tokenPrefix):
         tc = len(teams)
@@ -41,11 +48,17 @@ class WorldCup(object):
         for g in self.gs:
             print("%s: %s" % (g, self.groups[g]))
 
+    def printKnockoutRoster(self, lastDay = False):
+        for i in range(7, 7+len(self.knroster)) if not lastDay else range(self.gday, self.gday+1):
+            print("Knockout Day %d games:" % i)
+            for (t1, t2), res in self.knroster[i].items():
+                print(kGameString(i, t1, t2, res))
+
     def printGroupRoster(self, lastDay = False):
-        for i in range(1,7) if not lastDay else range(self.gsday, self.gsday+1):
-            print("Day %d games:" % i)
+        for i in range(1,7) if not lastDay else range(self.gday, self.gday+1):
+            print("Group Stage. Day %d games:" % i)
             for (g, t1, t2), res in self.gsroster[i].items():
-                print(gameString(g, t1, t2, res))
+                print(gGameString(g, t1, t2, res))
 
     def printGroupWinners(self):
         for g in self.gs:
@@ -75,7 +88,7 @@ class WorldCup(object):
         
         return groups
 
-    def getWinners(self, group):
+    def getGroupWinners(self, group):
         if group not in self.gw:
             byPoints = sorted(self.groups[group].items(), key=lambda i: i[1], reverse=True)
             first = byPoints[0]
@@ -88,7 +101,41 @@ class WorldCup(object):
                 self.gw[group] = first, second
         return self.gw[group]
 
-    
+    def updateKnockoutStageRoster(self):
+        winners = []; losers = []
+        new_games = {}
+        # This creates the next day of games.
+        for (t1, t2), (s1, s2, _) in self.knroster[self.gday].items():
+            if s1 > s2:
+                winners.append(t1)
+                losers.append(t2)
+            else:
+                winners.append(t2)
+                losers.append(t1)
+        
+        # If there are 2 winners only, and we haven't done finals, we're about to play the final.
+        # We schedule the third place race first.
+        if len(winners) == 2:
+            if len(self.cup) == 0:
+                new_games[(losers[0], losers[1])] = THIRD_PLACE
+                new_games[(winners[0], winners[1])] = FINAL
+                winners.clear()
+            else:
+                raise Exception("No call to update should happen if the cup has entries")
+        
+        # Otherwise, we pick randomly winners and create new matches.
+        while len(winners) >= 2:
+            w1 = random.choice(winners)
+            winners.remove(w1)
+            w2 = random.choice(winners)
+            winners.remove(w2)
+            new_games[(w1, w2)] = NOT_PLAYED
+        
+        if len(winners) != 0:
+            raise Exception("We got a winners leak!", winners)
+        self.knroster[self.gday + 1] = new_games
+
+
     def createKnockoutStageRoster(self):
         # Once we have played all games, we get winners on each group, and we create the rosters.
         # Like a World Cup, we will pit 1st place of a group v. 2nd place of another.
@@ -99,7 +146,7 @@ class WorldCup(object):
         while len(fp) > 0 and len(sp) > 0:
             # Select a random from first place list.
             g1 = random.choice(fp)
-            g11, _ = self.getWinners(g1)
+            g11, _ = self.getGroupWinners(g1)
 
             # Remove it from first place
             fp.remove(g1)
@@ -115,11 +162,12 @@ class WorldCup(object):
 
             sp.remove(g2)
             # Add entry
-            _, g22 = self.getWinners(g2)
-            r[7][(g11[0], g22[0])] = self.notplayed
+            _, g22 = self.getGroupWinners(g2)
+            r[7][(g11[0], g22[0])] = NOT_PLAYED
             # print("[%s] 1st Place %s v. [%s] 2nd Place %s" % (g1, g11[0], g2, g22[0]))
         if len(sp) > 0 or len(fp) > 0:
             raise Exception ("Mismatched first/second place list")
+        self.knroster = r
 
     def createGroupStageRoster(self, groups):
         # Resulting object has:
@@ -131,7 +179,7 @@ class WorldCup(object):
             for t1, t2 in roster:
                 i = random.choice(days)
                 days.remove(i)
-                r[i][(g, t1, t2)] = self.notplayed
+                r[i][(g, t1, t2)] = NOT_PLAYED
         return r
 
     def playOneGame(self):
@@ -143,8 +191,66 @@ class WorldCup(object):
                 gt2 += 1
             else:
                 gt1 += 1
-        
         return gt1, gt2
+
+    def playPenaltyKicks(self):
+        gt1, gt2 = 0, 0 
+        for kick in range(5):
+            if random.randrange(256) % 2 == 0:
+                gt2 += 1
+            if random.randrange(256) % 2 == 1:
+                gt1 += 1
+            # If not recoverable, end
+            if abs(gt1-gt2) > kick + 1:
+                break
+        # Sudden Death
+        if gt1 == gt2:
+            while True:
+                if random.randrange(256) % 2 == 0:
+                    gt2 += 1
+                if random.randrange(256) % 2 == 1:
+                    gt1 += 1
+                if gt1 != gt2:
+                    break
+        return gt1, gt2
+
+    def playKnockoutStageDay(self, one_day = False):
+        # We will play each game day. Differences from group stage:
+        # * No ties. If there's a tie, we go straight to penalties (life is too short for extra time)
+        # * Semifinals AND finals will both have 2 games.
+        # * In the finals, the first game determines the third place; the second the 1st and 2nd.
+        # If one_day is True, it will play one day only, and return False if we have a World Cup winner, True otherwise.
+        # Otherwise, it will play the entire knockout stage, and return False.
+        while True:
+            self.gday += 1
+            game_over = False
+            if self.gday not in self.knroster:
+                raise Exception("Not yet implemented")
+            games = self.knroster[self.gday]
+            for (t1, t2), res in games.items():
+                if res not in (NOT_PLAYED, THIRD_PLACE, FINAL):
+                    raise Exception("Match %s already played!" % kGameString(self.gday, t1,t2,res))
+                ks1, ks2 = self.playOneGame()
+                gt = "Regular Time"
+                if ks1 == ks2:
+                    ks1, ks2 = self.playPenaltyKicks()
+                    gt = "Penalties"     
+                if res == THIRD_PLACE:
+                    self.cup[3] = t1 if ks1 > ks2 else t2
+                    gt = gt + " - Third Place"
+                elif res == FINAL:
+                    game_over = True
+                    self.cup[1], self.cup[2] = (t1, t2) if ks1 > ks2 else (t2, t1)
+                    gt = gt + " - Final"
+                games[(t1, t2)] = (ks1, ks2, gt)
+            if game_over:
+                break
+            self.updateKnockoutStageRoster()
+            if one_day:
+                return True
+        return False
+
+
 
     def playGroupStageGame(self, one_day=False):
         # Group stage requires 6 games per group. We group a single game across all groups in "Days".
@@ -154,14 +260,14 @@ class WorldCup(object):
         # Winner of each game gets 3 points
         # Ties get 1 point each.
         # Loser gets 0 points.
-        # If one_day is True, it will play one day only, and return True if it's Day 6, False otherwise.
-        # Otherwise, it will play the entire group stage, and return True.
-        while self.gsday < 6:
-            self.gsday += 1
-            day = self.gsroster[self.gsday]
+        # If one_day is True, it will play one day only, and return False if it's Day 6, True otherwise.
+        # Otherwise, it will play the entire group stage, and return False.
+        while self.gday < 6:
+            self.gday += 1
+            day = self.gsroster[self.gday]
             for (g, t1, t2), res in day.items():
-                if res != self.notplayed:
-                    raise Exception("Match %s already played!" % gameString(g,t1,t2,res))
+                if res != NOT_PLAYED:
+                    raise Exception("Match %s already played!" % gGameString(g,t1,t2,res))
                 gt1, gt2 = self.playOneGame()
                 # Update the roster
                 day[(g,t1,t2)] = (gt1, gt2)
@@ -175,23 +281,25 @@ class WorldCup(object):
                     # Tie, 1 point each
                     self.groups[g][t1] += 1
                     self.groups[g][t2] += 1
-            if self.gsday == 6:
+            if self.gday == 6:
                 self.createKnockoutStageRoster()
             if one_day:
-                return False
-        return True
+                return True
+        return False
 
 
 if __name__ == "__main__":
     sol = WorldCup(["Team %d" % i for i in range(32)])
-    # print("Initial groups:")
-    # sol.printGroups()
-    # print("Initial roster:")
-    # sol.printGroupRoster()
     print("\nGroup Stage Game")
-    while not sol.playGroupStageGame(True):
+    while sol.playGroupStageGame(True):
         sol.printGroupRoster(True)
     print("\nAfter group stage")
     sol.printGroups()
     print("\nGroup winners:")
     sol.printGroupWinners()
+    print("\nKnockout Stage Games:")
+    while sol.playKnockoutStageDay(True):
+        sol.printKnockoutRoster(True)
+    sol.printKnockoutRoster(True)    
+    print(sol.cup)
+    
