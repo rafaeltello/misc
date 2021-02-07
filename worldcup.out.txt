@@ -1,0 +1,94 @@
+/usr/bin/python3 /Users/rafaeltello/src/misc/worldcup.py
+rafaeltello@Rafaels-MacBook-Pro misc % /usr/bin/python3 /Users/rafaeltello/src/misc/worldcup.py
+***Input was 34 teams. To ensure the tournament can be played as a tournament (with 64 teams), adding extra: ['Virtual Team 34', 'Virtual Team 35', 'Virtual Team 36', 'Virtual Team 37', 'Virtual Team 38', 'Virtual Team 39', 'Virtual Team 40', 'Virtual Team 41', 'Virtual Team 42', 'Virtual Team 43', 'Virtual Team 44', 'Virtual Team 45', 'Virtual Team 46', 'Virtual Team 47', 'Virtual Team 48', 'Virtual Team 49', 'Virtual Team 50', 'Virtual Team 51', 'Virtual Team 52', 'Virtual Team 53', 'Virtual Team 54', 'Virtual Team 55', 'Virtual Team 56', 'Virtual Team 57', 'Virtual Team 58', 'Virtual Team 59', 'Virtual Team 60', 'Virtual Team 61', 'Virtual Team 62', 'Virtual Team 63']
+
+
+Group Stage winners:
+Group A: 1st Place: ('Virtual Team 52', 5) | 2nd Place: ('Comment 12', 4)
+Group B: 1st Place: ('Comment 4', 7) | 2nd Place: ('Comment 21', 7)
+Group C: 1st Place: ('Comment 26', 6) | 2nd Place: ('Virtual Team 48', 4)
+Group D: 1st Place: ('Virtual Team 47', 6) | 2nd Place: ('Virtual Team 58', 6)
+Group E: 1st Place: ('Virtual Team 41', 7) | 2nd Place: ('Comment 24', 6)
+Group F: 1st Place: ('Comment 32', 7) | 2nd Place: ('Comment 22', 5)
+Group G: 1st Place: ('Comment 0', 9) | 2nd Place: ('Comment 14', 4)
+Group H: 1st Place: ('Comment 15', 5) | 2nd Place: ('Virtual Team 46', 5)
+Group I: 1st Place: ('Virtual Team 57', 7) | 2nd Place: ('Virtual Team 63', 4)
+Group J: 1st Place: ('Comment 17', 7) | 2nd Place: ('Comment 18', 4)
+Group K: 1st Place: ('Virtual Team 39', 7) | 2nd Place: ('Virtual Team 40', 4)
+Group L: 1st Place: ('Virtual Team 59', 5) | 2nd Place: ('Virtual Team 60', 5)
+Group M: 1st Place: ('Comment 1', 5) | 2nd Place: ('Comment 6', 5)
+Group N: 1st Place: ('Virtual Team 43', 6) | 2nd Place: ('Virtual Team 61', 6)
+Group O: 1st Place: ('Comment 28', 6) | 2nd Place: ('Virtual Team 42', 6)
+Group P: 1st Place: ('Comment 9', 7) | 2nd Place: ('Comment 23', 6)
+
+
+
+World Cup Results
+First Place:   Virtual Team 59
+Second Place:  Comment 14
+Third Place:   Virtual Team 43
+
+
+
+
+Game yielded an inexistent player as finalist. Retrying...
+***Input was 34 teams. To ensure the tournament can be played as a tournament (with 64 teams), adding extra: ['Virtual Team 34', 'Virtual Team 35', 'Virtual Team 36', 'Virtual Team 37', 'Virtual Team 38', 'Virtual Team 39', 'Virtual Team 40', 'Virtual Team 41', 'Virtual Team 42', 'Virtual Team 43', 'Virtual Team 44', 'Virtual Team 45', 'Virtual Team 46', 'Virtual Team 47', 'Virtual Team 48', 'Virtual Team 49', 'Virtual Team 50', 'Virtual Team 51', 'Virtual Team 52', 'Virtual Team 53', 'Virtual Team 54', 'Virtual Team 55', 'Virtual Team 56', 'Virtual Team 57', 'Virtual Team 58', 'Virtual Team 59', 'Virtual Team 60', 'Virtual Team 61', 'Virtual Team 62', 'Virtual Team 63']
+
+
+Group Stage winners:
+Group A: 1st Place: ('Virtual Team 44', 7) | 2nd Place: ('Virtual Team 45', 4)
+Group B: 1st Place: ('Comment 14', 6) | 2nd Place: ('Virtual Team 48', 4)
+Group C: 1st Place: ('Comment 8', 5) | 2nd Place: ('Comment 23', 5)
+Group D: 1st Place: ('Comment 30', 7) | 2nd Place: ('Virtual Team 36', 4)
+Group E: 1st Place: ('Comment 11', 6) | 2nd Place: ('Comment 10', 4)
+Group F: 1st Place: ('Comment 3', 5) | 2nd Place: ('Virtual Team 43', 4)
+Group G: 1st Place: ('Virtual Team 62', 7) | 2nd Place: ('Comment 19', 4)
+Group H: 1st Place: ('Comment 32', 7) | 2nd Place: ('Comment 25', 6)
+Group I: 1st Place: ('Virtual Team 35', 7) | 2nd Place: ('Virtual Team 57', 4)
+Group J: 1st Place: ('Comment 6', 7) | 2nd Place: ('Comment 15', 4)
+Group K: 1st Place: ('Comment 21', 9) | 2nd Place: ('Comment 31', 6)
+Group L: 1st Place: ('Virtual Team 50', 7) | 2nd Place: ('Virtual Team 61', 6)
+Group M: 1st Place: ('Virtual Team 38', 5) | 2nd Place: ('Virtual Team 51', 5)
+Group N: 1st Place: ('Virtual Team 42', 6) | 2nd Place: ('Virtual Team 56', 6)
+Group O: 1st Place: ('Comment 20', 7) | 2nd Place: ('Comment 0', 6)
+Group P: 1st Place: ('Comment 2', 7) | 2nd Place: ('Comment 17', 5)
+
+
+
+World Cup Results
+First Place:   Virtual Team 50
+Second Place:  Virtual Team 61
+Third Place:   Comment 30
+
+
+
+
+Game yielded an inexistent player as finalist. Retrying...
+***Input was 34 teams. To ensure the tournament can be played as a tournament (with 64 teams), adding extra: ['Virtual Team 34', 'Virtual Team 35', 'Virtual Team 36', 'Virtual Team 37', 'Virtual Team 38', 'Virtual Team 39', 'Virtual Team 40', 'Virtual Team 41', 'Virtual Team 42', 'Virtual Team 43', 'Virtual Team 44', 'Virtual Team 45', 'Virtual Team 46', 'Virtual Team 47', 'Virtual Team 48', 'Virtual Team 49', 'Virtual Team 50', 'Virtual Team 51', 'Virtual Team 52', 'Virtual Team 53', 'Virtual Team 54', 'Virtual Team 55', 'Virtual Team 56', 'Virtual Team 57', 'Virtual Team 58', 'Virtual Team 59', 'Virtual Team 60', 'Virtual Team 61', 'Virtual Team 62', 'Virtual Team 63']
+
+
+Group Stage winners:
+Group A: 1st Place: ('Comment 9', 5) | 2nd Place: ('Comment 14', 4)
+Group B: 1st Place: ('Virtual Team 63', 6) | 2nd Place: ('Virtual Team 62', 4)
+Group C: 1st Place: ('Virtual Team 45', 6) | 2nd Place: ('Virtual Team 53', 6)
+Group D: 1st Place: ('Comment 10', 7) | 2nd Place: ('Comment 15', 5)
+Group E: 1st Place: ('Virtual Team 46', 7) | 2nd Place: ('Comment 25', 4)
+Group F: 1st Place: ('Comment 11', 7) | 2nd Place: ('Virtual Team 44', 4)
+Group G: 1st Place: ('Virtual Team 54', 9) | 2nd Place: ('Comment 28', 6)
+Group H: 1st Place: ('Comment 1', 7) | 2nd Place: ('Virtual Team 38', 7)
+Group I: 1st Place: ('Virtual Team 52', 7) | 2nd Place: ('Virtual Team 37', 4)
+Group J: 1st Place: ('Comment 24', 7) | 2nd Place: ('Comment 22', 4)
+Group K: 1st Place: ('Comment 16', 6) | 2nd Place: ('Comment 6', 4)
+Group L: 1st Place: ('Virtual Team 48', 6) | 2nd Place: ('Virtual Team 56', 6)
+Group M: 1st Place: ('Comment 4', 7) | 2nd Place: ('Comment 19', 4)
+Group N: 1st Place: ('Comment 18', 6) | 2nd Place: ('Comment 32', 6)
+Group O: 1st Place: ('Virtual Team 59', 6) | 2nd Place: ('Comment 21', 4)
+Group P: 1st Place: ('Comment 5', 7) | 2nd Place: ('Virtual Team 35', 6)
+
+
+
+World Cup Results
+First Place:   Comment 10
+Second Place:  Comment 18
+Third Place:   Comment 6
+rafaeltello@Rafaels-MacBook-Pro misc % 
