@@ -14,6 +14,18 @@ def gGameString(g, t1, t2, res):
 def kGameString(d, t1, t2, res):
     return "[Day %s] - %s v. %s : %s" % (d, t1, t2, res)
 
+# WorldCup allows to choose a first, second, and third place from a set of "teams", using
+# a format inspired by FIFA(R) World Cup's mechanics.
+# For full details, visit https://en.wikipedia.org/wiki/FIFA_World_Cup
+# In essence, it will first divide participants in groups of 4, which will compete against each other,
+# obtaining points for each win or tie.
+# Half of the group will move forward to the Knockout stage.
+# In the first game of the knockout stage, each group winner will face a second-place from a different group.
+# On this and all next rounds there are no ties; ties get solved through a round of 5 penalty kicks, and if not, 
+# sudden death (first unmatched score wins).
+# In order for this to work, the number of teams has to be a power of 2 greater than 8. The game will introduce virtual players
+# until this condition is satisfied. This means that it's possible that the game is won by a virtual player. In this case, it's
+# necessary to re-run the game.
 class WorldCup(object):
     def __init__(self, teams):
         self.tokenPrefix = "Virtual Team "
@@ -22,15 +34,15 @@ class WorldCup(object):
         # World Cups can be played with 16, 32, 64, or 128 players.
         # We create token teams to fill up to one of these powers.
         # If this team wins, we repeat the entire World Cup.
-        self.pc = len(teams)
+        self._pc = len(teams)
         
-        self.groups = self.createGroups()
-        self.gs = sorted(self.groups.keys())
+        self._groups = self.createGroups()
+        self._gs = sorted(self._groups.keys())
         self.gw = {}
-        self.gsroster = self.createGroupStageRoster(self.groups)
-        self.knroster = None
-        self.gday = 0
-        self.cup = {}
+        self._gsroster = self.createGroupStageRoster(self._groups)
+        self._knroster = None
+        self._gday = 0
+        self._cup = {}
     
     def packTeams(self, teams, tokenPrefix):
         tc = len(teams)
@@ -44,34 +56,45 @@ class WorldCup(object):
             teams.extend(extrateams)
         return teams
 
+    def printWinners(self):
+        if len(self._cup) != 3:
+            return
+        print("\n\n\nWorld Cup Results")
+        print("First Place:   %s" % self._cup[1])
+        print("Second Place:  %s" % self._cup[2])
+        print("Third Place:   %s" % self._cup[3])
+
+    def areAllWinnersReal(self):
+        return not any([(self.tokenPrefix in i) for i in self._cup.values()])
+
     def printGroups(self):
-        for g in self.gs:
-            print("%s: %s" % (g, self.groups[g]))
+        for g in self._gs:
+            print("%s: %s" % (g, self._groups[g]))
 
     def printKnockoutRoster(self, lastDay = False):
-        for i in range(7, 7+len(self.knroster)) if not lastDay else range(self.gday, self.gday+1):
+        for i in range(7, 7+len(self._knroster)) if not lastDay else range(self._gday, self._gday+1):
             print("Knockout Day %d games:" % i)
-            for (t1, t2), res in self.knroster[i].items():
+            for (t1, t2), res in self._knroster[i].items():
                 print(kGameString(i, t1, t2, res))
 
     def printGroupRoster(self, lastDay = False):
-        for i in range(1,7) if not lastDay else range(self.gday, self.gday+1):
+        for i in range(1,7) if not lastDay else range(self._gday, self._gday+1):
             print("Group Stage. Day %d games:" % i)
-            for (g, t1, t2), res in self.gsroster[i].items():
+            for (g, t1, t2), res in self._gsroster[i].items():
                 print(gGameString(g, t1, t2, res))
 
     def printGroupWinners(self):
-        for g in self.gs:
+        for g in self._gs:
             gw = self.gw[g]
             print("%s: 1st Place: %s | 2nd Place: %s" % (g, gw[0], gw[1]))
 
     def createGroups(self):
-        if self.pc % 4 != 0:
-            raise Exception("Can't create initial roster with %d teams" % self.pc)
+        if self._pc % 4 != 0:
+            raise Exception("Can't create initial roster with %d teams" % self._pc)
         random.seed()
         groups = {}
         # We first create len(teams) / 4 groups.
-        for i in range(int(self.pc / 4)):
+        for i in range(int(self._pc / 4)):
             groups["Group %s" % (chr(ord('A') + i))] = {}
         
         # Assign each team to a random group
@@ -90,7 +113,7 @@ class WorldCup(object):
 
     def getGroupWinners(self, group):
         if group not in self.gw:
-            byPoints = sorted(self.groups[group].items(), key=lambda i: i[1], reverse=True)
+            byPoints = sorted(self._groups[group].items(), key=lambda i: i[1], reverse=True)
             first = byPoints[0]
             second = byPoints[1]
             third = byPoints[2]
@@ -105,7 +128,7 @@ class WorldCup(object):
         winners = []; losers = []
         new_games = {}
         # This creates the next day of games.
-        for (t1, t2), (s1, s2, _) in self.knroster[self.gday].items():
+        for (t1, t2), (s1, s2, _) in self._knroster[self._gday].items():
             if s1 > s2:
                 winners.append(t1)
                 losers.append(t2)
@@ -116,7 +139,7 @@ class WorldCup(object):
         # If there are 2 winners only, and we haven't done finals, we're about to play the final.
         # We schedule the third place race first.
         if len(winners) == 2:
-            if len(self.cup) == 0:
+            if len(self._cup) == 0:
                 new_games[(losers[0], losers[1])] = THIRD_PLACE
                 new_games[(winners[0], winners[1])] = FINAL
                 winners.clear()
@@ -133,7 +156,7 @@ class WorldCup(object):
         
         if len(winners) != 0:
             raise Exception("We got a winners leak!", winners)
-        self.knroster[self.gday + 1] = new_games
+        self._knroster[self._gday + 1] = new_games
 
 
     def createKnockoutStageRoster(self):
@@ -141,7 +164,7 @@ class WorldCup(object):
         # Like a World Cup, we will pit 1st place of a group v. 2nd place of another.
         # Unlike a World Cup, we can have 64, 128, 256, 512... so we'll just create Day 7.
         r = {7 : {}}
-        fp = [g for g in self.groups.keys()]
+        fp = [g for g in self._groups.keys()]
         sp = copy.deepcopy(fp)
         while len(fp) > 0 and len(sp) > 0:
             # Select a random from first place list.
@@ -156,6 +179,8 @@ class WorldCup(object):
             if g1 in sp:
                 removed = True
                 sp.remove(g1)
+            if len(sp) == 0:
+                raise Exception("Shouldn't be empty!", r[7])
             g2 = random.choice(sp)
             if removed:
                 sp.append(g1)
@@ -167,7 +192,7 @@ class WorldCup(object):
             # print("[%s] 1st Place %s v. [%s] 2nd Place %s" % (g1, g11[0], g2, g22[0]))
         if len(sp) > 0 or len(fp) > 0:
             raise Exception ("Mismatched first/second place list")
-        self.knroster = r
+        self._knroster = r
 
     def createGroupStageRoster(self, groups):
         # Resulting object has:
@@ -222,25 +247,26 @@ class WorldCup(object):
         # If one_day is True, it will play one day only, and return False if we have a World Cup winner, True otherwise.
         # Otherwise, it will play the entire knockout stage, and return False.
         while True:
-            self.gday += 1
+            self._gday += 1
             game_over = False
-            if self.gday not in self.knroster:
+            if self._gday not in self._knroster:
                 raise Exception("Not yet implemented")
-            games = self.knroster[self.gday]
+            games = self._knroster[self._gday]
             for (t1, t2), res in games.items():
                 if res not in (NOT_PLAYED, THIRD_PLACE, FINAL):
-                    raise Exception("Match %s already played!" % kGameString(self.gday, t1,t2,res))
+                    raise Exception("Match %s already played!" % kGameString(self._gday, t1,t2,res))
                 ks1, ks2 = self.playOneGame()
                 gt = "Regular Time"
                 if ks1 == ks2:
                     ks1, ks2 = self.playPenaltyKicks()
                     gt = "Penalties"     
                 if res == THIRD_PLACE:
-                    self.cup[3] = t1 if ks1 > ks2 else t2
+                    game_over = True
+                    self._cup[3] = t1 if ks1 > ks2 else t2
                     gt = gt + " - Third Place"
                 elif res == FINAL:
                     game_over = True
-                    self.cup[1], self.cup[2] = (t1, t2) if ks1 > ks2 else (t2, t1)
+                    self._cup[1], self._cup[2] = (t1, t2) if ks1 > ks2 else (t2, t1)
                     gt = gt + " - Final"
                 games[(t1, t2)] = (ks1, ks2, gt)
             if game_over:
@@ -250,7 +276,20 @@ class WorldCup(object):
                 return True
         return False
 
-
+    def play(self, verbose=False):
+        self.playGroupStageGame()
+        if verbose:
+            self.printGroupRoster()
+            print("\n\nAfter group stage")
+            self.printGroups()
+        print("\n\nGroup Stage winners:")
+        self.printGroupWinners()
+        if verbose:
+            print("\n\nKnockout Stage Games:")
+            self.printKnockoutRoster()
+        self.playKnockoutStageDay()
+        self.printWinners()
+        return self.areAllWinnersReal()
 
     def playGroupStageGame(self, one_day=False):
         # Group stage requires 6 games per group. We group a single game across all groups in "Days".
@@ -262,9 +301,9 @@ class WorldCup(object):
         # Loser gets 0 points.
         # If one_day is True, it will play one day only, and return False if it's Day 6, True otherwise.
         # Otherwise, it will play the entire group stage, and return False.
-        while self.gday < 6:
-            self.gday += 1
-            day = self.gsroster[self.gday]
+        while self._gday < 6:
+            self._gday += 1
+            day = self._gsroster[self._gday]
             for (g, t1, t2), res in day.items():
                 if res != NOT_PLAYED:
                     raise Exception("Match %s already played!" % gGameString(g,t1,t2,res))
@@ -273,15 +312,15 @@ class WorldCup(object):
                 day[(g,t1,t2)] = (gt1, gt2)
                 if gt1 > gt2:
                     # t1 won. Yay!
-                    self.groups[g][t1] += 3
+                    self._groups[g][t1] += 3
                 elif gt2 > gt1:
                     # t2 won. Yay!
-                    self.groups[g][t2] += 3
+                    self._groups[g][t2] += 3
                 else:
                     # Tie, 1 point each
-                    self.groups[g][t1] += 1
-                    self.groups[g][t2] += 1
-            if self.gday == 6:
+                    self._groups[g][t1] += 1
+                    self._groups[g][t2] += 1
+            if self._gday == 6:
                 self.createKnockoutStageRoster()
             if one_day:
                 return True
@@ -289,17 +328,10 @@ class WorldCup(object):
 
 
 if __name__ == "__main__":
-    sol = WorldCup(["Team %d" % i for i in range(32)])
-    print("\nGroup Stage Game")
-    while sol.playGroupStageGame(True):
-        sol.printGroupRoster(True)
-    print("\nAfter group stage")
-    sol.printGroups()
-    print("\nGroup winners:")
-    sol.printGroupWinners()
-    print("\nKnockout Stage Games:")
-    while sol.playKnockoutStageDay(True):
-        sol.printKnockoutRoster(True)
-    sol.printKnockoutRoster(True)    
-    print(sol.cup)
-    
+    while True:
+        wc = WorldCup(["Comment %d" % i for i in range(34)])
+        valid = wc.play(True)
+        if not valid:
+            print("\n\n\n\nGame yielded an inexistent player as finalist. Retrying...")
+        else:
+            break
