@@ -1,25 +1,38 @@
 import random
 import uuid
 import itertools
+import math
 
 def gameString(g, t1, t2, res):
     return "[%s] - %s v. %s : %s" % (g, t1, t2, res)
 
 class WorldCup(object):
     def __init__(self, teams):
-        self.teams = teams
-        self.tokenPrefix = str(uuid.uuid4())
-        # World Cups first stage have multiples of four.
-        # We fill to the nearest group with a "token" team.
+        self.tokenPrefix = "Virtual Team "
+        self.teams = self.packTeams(teams, self.tokenPrefix)
+        
+        # World Cups can be played with 16, 32, 64, or 128 players.
+        # We create token teams to fill up to one of these powers.
         # If this team wins, we repeat the entire World Cup.
-        if len(teams) % 4 != 0:
-            self.teams.extend(["%s%i" % (self.tokenPrefix, i) for i in range(4 - len(teams) % 4)])
+       
         self.pc = len(teams)
         self.notplayed = ""
         self.groups = self.createGroups()
         self.gsroster = self.createGroupStageRoster(self.groups)
         self.gsday = 0
     
+    def packTeams(self, teams, tokenPrefix):
+        tc = len(teams)
+        if tc < 8:
+            raise Exception("A World Cup should have at least 8 teams. Sorry.")
+        # If we have 8, 16, 32, 64, 128, 256, we don't do anything.
+        # Otherwise, we insert as many items as necessary to fill one of them.
+        if tc & (tc - 1) != 0:
+            extrateams = ["%s%i" % (tokenPrefix, i) for i in range(tc, 2**(int(math.log2(tc)) + 1))]
+            print("***Input was %d teams. To ensure the tournament can be played as a tournament (with %d teams), adding extra: %s" % (tc, tc + len(extrateams), extrateams))
+            teams.extend(extrateams)
+        return teams
+
     def printGroups(self):
         gs = list(self.groups.keys())
         gs.sort()
@@ -67,9 +80,7 @@ class WorldCup(object):
                 days.remove(i)
                 r[i][(g, t1, t2)] = self.notplayed
         return r
-                
-
-
+               
     def playGroupStageGame(self, one_day=False):
         # Group stage requires 6 games per group. We group a single game across all groups in "Days".
         # For each game in a day:
@@ -111,7 +122,7 @@ class WorldCup(object):
 
 
 if __name__ == "__main__":
-    sol = WorldCup(["Team %d" % i for i in range(31)])
+    sol = WorldCup(["Team %d" % i for i in range(32)])
     # print("Initial groups:")
     # sol.printGroups()
     # print("Initial roster:")
