@@ -331,7 +331,7 @@ if __name__ == "__main__":
     while True:
         teams = ["Comment %d" % i for i in range(34)]
         wc = WorldCup(teams)
-        valid = wc.play(True)
+        valid = wc.play(False)
         if not valid:
             print("\n\n\n\nGame yielded an inexistent player as finalist. Retrying...")
         else:
